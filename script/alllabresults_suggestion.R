@@ -16,6 +16,7 @@ lab <- lab %>%
 lab$Date <- ymd(lab$Date)
 
 lab$Site <- factor(lab$Site, levels = Site.lvl) # Didn't need to create extra facet column
+# Site2 is to tell ggplot to pair up 1 and 6, 2 and 5 and 3 and 4
 lab$Site2 <- sapply(as.character(lab$Site), function (x) switch(x, "1"="A", "2"="B", "3"="C", 
                                                                 "4"="C", "5"="B", "6"="A"))
 
@@ -62,7 +63,8 @@ p <- ggplot(data=lab, aes(x=Date)) +
 
 # Now use the "template and add other stuff (Note: my personal preference to have geoms go first)
 p1 <- p + geom_line(data=dis2, aes(y=Discharge/160), color= "cornflowerblue", size=2, alpha=0.8) +
-  geom_point(aes(y= Phosphorus, shape=Site, color=Site), size=3) +
+  geom_point(aes(y= Phosphorus, shape=Site), size=3) +
+  scale_shape_manual(values = c(0, 15, 1, 16, 2, 17)) +
   scale_y_continuous(sec.axis = sec_axis(~.*160, name = "River Discharge (cfs)"), limits=c(0,125)) +
   ggtitle("Phosphorus") +
   ylab ("Phosphorus(?g/L)")
