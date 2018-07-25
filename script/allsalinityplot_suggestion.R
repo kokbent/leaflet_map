@@ -7,7 +7,7 @@ source("script/dailyFunctions.R")
 # Sensor water quality carpentry
 wq <- read.csv("data/wq.csv", header= T) %>%
   filter(Site != 0)
-wq$Date <- wq$Date %>% ymd_hms
+wq$Date <- wq$Date %>% ymd_hms %>% round_date(unit="hour")
 wq$Site <- factor(wq$Site, levels = c("6", "1", "7", "5", "2", "8","4", "3", "9"))
 
 # Water discharge carpentry (dynamically updating local discharge file)
@@ -85,4 +85,3 @@ p + theme(legend.position=("top"),
           axis.title=element_text(size=13,face="bold"),
           plot.title =element_text(size=13, face='bold'),
           axis.text.x = element_text(angle = 45, hjust = 1))
-
