@@ -62,6 +62,7 @@ p <- ggplot(data=lab, aes(x=Date)) +
   facet_wrap(~Site2, ncol=1)
 
 # Now use the "template and add other stuff (Note: my personal preference to have geoms go first)
+# Phosphorus
 p1 <- p + geom_line(data=dis2, aes(y=Discharge/160), color= "cornflowerblue", size=2, alpha=0.8) +
   geom_point(aes(y= Phosphorus, shape=Site), size=3) +
   scale_shape_manual(values = c(0, 15, 1, 16, 2, 17)) +
@@ -69,3 +70,13 @@ p1 <- p + geom_line(data=dis2, aes(y=Discharge/160), color= "cornflowerblue", si
   ggtitle("Phosphorus") +
   ylab ("Phosphorus(?g/L)")
 p1
+
+# Nitrogen
+p2 <- p + 
+  geom_line(data= dis2, aes(y=Discharge/13), color= "cornflowerblue", size=2, alpha=0.8) +
+  geom_point(aes(y= Nitrogen, shape=Site), size=3) +
+  scale_shape_manual(values = c(0, 15, 1, 16, 2, 17)) +
+  scale_y_continuous(sec.axis = sec_axis(~.*13, name = "River Discharge (cfs)"), limits=c(0,1500)) + 
+  ggtitle("Nitrogen")+
+  ylab ("Nitrogen(?g/L)")
+p2
