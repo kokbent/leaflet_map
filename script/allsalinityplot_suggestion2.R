@@ -54,15 +54,21 @@ dis2 <- dis %>%
   mutate(Datetime = paste(dates, " 12:00:00") %>% ymd_hms()) %>%
   filter(Datetime >= startDate & Datetime <= endDate)
 
+dis3 <- dis2 %>%
+  expand(Site=unique(sal_temp_summ$Site), dates) %>%
+  left_join(dis2) %>%
+  mutate(Measure = "Discharge", minVal = -20, maxVal = val/1000 - 20) %>%
+  select(Site, d2 = dates, Measure, minVal, maxVal)
+
+std_summ <- bind_rows(sal_temp_summ, dis3)
+
 # Since there's a lot of layers for the ggplot, I prefer to do it step by step:
 # First step to specify the ribbons and line and facet.
 # Note here for the water discharge data I've added a -20 to the ymax and ymin, this pushes 
 # the water discharge graph down to the region of -20 to 0, help to declutter.
 p <- ggplot() +
-  geom_ribbon(data=dis2, aes(x=dates, ymax=val/1000 - 20, ymin=-20), 
-              alpha=0.5) +
-  geom_line(data=sal_temp_summ, aes(x=d2, y=meanVal, color=Measure)) +
-  geom_ribbon(data=sal_temp_summ, aes(x=d2, ymax=maxVal, ymin=minVal, fill=Measure), 
+  geom_line(data=std_summ, aes(x=d2, y=meanVal, color=Measure)) +
+  geom_ribbon(data=std_summ, aes(x=d2, ymax=maxVal, ymin=minVal, fill=Measure), 
               alpha=0.5) +
   facet_wrap(~ Site)
 
@@ -70,6 +76,7 @@ p <- ggplot() +
 # we can control what to display on the y main and secondary axes, e.g. 0 to 40 for main,
 # and 0 to 20000 for secondary
 p <- p + 
+  guides(color=guide_legend(override.aes=list(linetype=c(0, 1, 1)))) +
   scale_y_continuous(name = "Temperature / Salinity (deg C / ppt)", 
                      limits=c(-20,40), 
                      breaks = seq(0, 40, 10),
@@ -77,12 +84,13 @@ p <- p +
                                          name = "River Discharge ('000 cfs)",
                                          breaks = seq(0, 20, 10))) +
   scale_x_date(date_breaks = "2 month", date_labels = "%Y/%m", expand = c(0, 0))
-  
+
 # Final step is to specify the theme
 p + theme(legend.position=("top"),
           panel.border = element_rect(color = "black", size = 1, fill = NA, linetype="solid"),
           axis.text=element_text(size=10),
           axis.title=element_text(size=13,face="bold"),
           plot.title =element_text(size=13, face='bold'),
-          axis.text.x = element_text(angle = 45, hjust = 1))
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.key = element_rect(colour = "purple"))
 
